@@ -13,6 +13,8 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Lets the glanceable driving screen run in gear D; without it AAOS blocks the app while driving -->
+            <meta-data android:name="distractionOptimized" android:value="true" />
         </activity>
     </application>
 </manifest>

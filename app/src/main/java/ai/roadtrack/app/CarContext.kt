@@ -9,10 +9,10 @@ data class CarSignals(
 )
 
 enum class Mood(val label: String, val ambientArgb: Int) {
-    RAIN("비 오는 날", 0xFF5A7BD8.toInt()),
-    NIGHT("야간 드라이브", 0xFF7F5AD8.toInt()),
-    TOGETHER("함께 듣기", 0xFFF687B3.toInt()),
-    DEFAULT("내 플레이리스트", 0xFF4FD1C5.toInt()),
+    RAIN("비 오는 날", 0xFF64D2FF.toInt()),
+    NIGHT("야간 드라이브", 0xFF5E5CE6.toInt()),
+    TOGETHER("함께 듣기", 0xFFFF9F0A.toInt()),
+    DEFAULT("내 플레이리스트", 0xFF30D158.toInt()),
 }
 
 /** Cabin light color while [song] plays: the song's own color wins, else the mood color. */

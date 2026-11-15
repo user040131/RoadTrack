@@ -5,8 +5,10 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,14 +18,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-private val Bg = Color(0xFF0E1116)
-private val Card = Color(0xFF1A1F27)
-private val Accent = Color(0xFF4FD1C5)
-private val Pin = Color(0xFFF687B3)
-private val Dim = Color(0xFF9AA4B2)
+// Design system "RoadTrack" v2 (dark): black base, gray steps, one green accent.
+private val Bg = Color(0xFF000000)
+private val Card = Color(0xFF1C1C1E)
+private val Card2 = Color(0xFF2C2C2E)
+private val Accent = Color(0xFF30D158)
+private val OnAccent = Color.Black
+private val Dim = Color(0xFFA1A1A6)
 
 data class Course(val name: String, val minutes: Int, val pins: Int, val songs: List<Song>)
 
@@ -42,7 +47,7 @@ class MainActivity : ComponentActivity() {
         signals = VehicleSignals(applicationContext).also { it.start() }
         setContent {
             val car by signals.state.collectAsStateWithLifecycle()
-            MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Bg)) {
+            MaterialTheme(colorScheme = darkColorScheme(primary = Accent, onPrimary = OnAccent, background = Bg, surface = Card)) {
                 RoadTrackApp(car, onLight = signals::setAmbient)
             }
         }
@@ -82,19 +87,20 @@ fun RoadTrackApp(car: CarSignals, onLight: (Int) -> Unit) {
 @Composable
 private fun ParkedScreen(selected: Course?, onPick: (Course) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("P · 오늘은 어디로 달릴까요?", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+        Text("P · 오늘은 어디로 달릴까요?", color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.02).em)
         Text("'금요일 밤' 플레이리스트 52분에 맞춘 코스", color = Dim, fontSize = 20.sp)
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             demoCourses.forEach { c ->
                 val on = c == selected
                 Column(
                     Modifier.weight(1f)
-                        .background(if (on) Accent.copy(alpha = 0.2f) else Card, RoundedCornerShape(16.dp))
+                        .background(if (on) Accent.copy(alpha = 0.16f) else Card, RoundedCornerShape(20.dp))
+                        .border(2.dp, if (on) Accent else Color.Transparent, RoundedCornerShape(20.dp))
                         .clickable { onPick(c) }
                         .padding(24.dp),
                 ) {
-                    Text(c.name, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text("${c.minutes}분 · 노래 핀 ${c.pins}개", color = Dim, fontSize = 18.sp)
+                    Text(c.name, color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
+                    Text("${c.minutes}분 · 노래 핀 ${c.pins}개", color = Dim, fontSize = 20.sp)
                 }
             }
         }
@@ -117,36 +123,41 @@ private fun DrivingScreen(course: Course, mood: Mood, onLight: (Int) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
         Text("${course.name} · ${mood.label}", color = Dim, fontSize = 22.sp)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-            Box(Modifier.size(40.dp).background(Color(light), RoundedCornerShape(10.dp)))
-            Text(song.title, color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+            Box(Modifier.size(20.dp).background(Color(light), CircleShape))
+            Text(song.title, color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.02).em)
         }
-        Text(song.artist, color = Dim, fontSize = 28.sp)
-        Text("다음 노래 핀까지 1.2km", color = Pin, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+        Text(song.artist, color = Dim, fontSize = 26.sp)
+        Text("다음 노래 핀까지 1.2km", color = Accent, fontSize = 28.sp, fontWeight = FontWeight.Bold)
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            BigButton("▶ 이 곡 재생") {
+            BigButton("이 곡 재생") {
                 if (!playSong(ctx, song)) Toast.makeText(ctx, "재생할 음악 앱이 없어요", Toast.LENGTH_SHORT).show()
             }
-            BigButton("다음 곡") { index++ }
+            BigButton("다음 곡", primary = false) { index++ }
         }
     }
 }
 
 @Composable
-private fun BigButton(label: String, onClick: () -> Unit) {
-    Button(onClick, Modifier.height(96.dp).widthIn(min = 280.dp), shape = RoundedCornerShape(20.dp)) {
-        Text(label, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+private fun BigButton(label: String, primary: Boolean = true, onClick: () -> Unit) {
+    Button(
+        onClick, Modifier.height(96.dp).widthIn(min = 240.dp), shape = RoundedCornerShape(20.dp),
+        colors = if (primary) ButtonDefaults.buttonColors(containerColor = Accent, contentColor = OnAccent)
+        else ButtonDefaults.buttonColors(containerColor = Card2, contentColor = Color.White),
+    ) {
+        Text(label, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
 @Composable
 private fun SuggestionBar(mood: Mood, modifier: Modifier, onAccept: () -> Unit, onDismiss: () -> Unit) {
     Row(
-        modifier.fillMaxWidth().background(Card, RoundedCornerShape(20.dp)).padding(24.dp),
+        modifier.fillMaxWidth().background(Card, RoundedCornerShape(28.dp)).padding(24.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        Text("${mood.label} 플레이리스트로 바꿀까요?", color = Color.White, fontSize = 28.sp, modifier = Modifier.weight(1f))
-        BigButton("바꾸기", onAccept)
-        TextButton(onDismiss) { Text("괜찮아요", fontSize = 24.sp, color = Dim) }
+        Box(Modifier.size(20.dp).background(Color(mood.ambientArgb), CircleShape))
+        Text("${mood.label} 플레이리스트로 바꿀까요?", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        TextButton(onDismiss) { Text("괜찮아요", fontSize = 26.sp, color = Dim) }
+        BigButton("바꾸기", onClick = onAccept)
     }
 }

@@ -11,6 +11,11 @@
 - **곡별 앰비언트 라이트**: 곡이 바뀔 때마다 실내 조명 색 변경 (노래 핀 작성자가 고른 색, 없으면 무드 색)
 - **멀티 음악 앱 지원**: 멜론 등 사용자가 쓰는 음악 앱으로 재생 연결
 
+## Pleos Connect 에뮬레이터 실행 화면
+| 기어 P: 코스 선택 | 기어 D + 와이퍼 ON: 주행 화면과 비 오는 날 제안 |
+|---|---|
+| ![](docs/emulator/01_정차_P_코스선택.png) | ![](docs/emulator/02_주행_D_비오는날_제안.png) |
+
 ## 시연 영상 (화면 시안)
 - [docs/RoadTrack_demo.mp4](docs/RoadTrack_demo.mp4) — 6개 핵심 화면 흐름 (42초)
 
@@ -41,7 +46,7 @@
 
 ## Pleos Connect 에뮬레이터 버전 및 화면 규격
 - 대상: Pleos Connect Emulator v2.1.0 (Android 14, API 34), 가로 화면
-- _(실기 에뮬레이터 화면 규격 확인 후 갱신 예정)_
+- Pleos Connect Emulator v2.1.0 (Android 14, API 34), 화면 2560×1440 (160dpi), 가로
 
 ## APK
 - 위치: [`apk/`](apk/) (`팀명_앱이름_release.apk`)
