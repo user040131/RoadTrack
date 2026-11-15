@@ -12,7 +12,7 @@
 - **멀티 음악 앱 지원**: 멜론 등 사용자가 쓰는 음악 앱으로 재생 연결
 
 ## 시연 영상 (화면 시안)
-- [docs/RoadTrack_demo.mp4](docs/RoadTrack_demo.mp4) — 6개 핵심 화면 흐름 (36초)
+- [docs/RoadTrack_demo.mp4](docs/RoadTrack_demo.mp4) — 6개 핵심 화면 흐름 (42초)
 
 ## 화면 시안
 | | |
