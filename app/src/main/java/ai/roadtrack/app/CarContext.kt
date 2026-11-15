@@ -15,6 +15,9 @@ enum class Mood(val label: String, val ambientArgb: Int) {
     DEFAULT("내 플레이리스트", 0xFF4FD1C5.toInt()),
 }
 
+/** Cabin light color while [song] plays: the song's own color wins, else the mood color. */
+fun lightFor(song: Song, mood: Mood): Int = song.colorArgb ?: mood.ambientArgb
+
 /** One suggestion per situation; rain wins over night wins over passenger. */
 fun suggestMood(s: CarSignals): Mood = when {
     s.raining -> Mood.RAIN

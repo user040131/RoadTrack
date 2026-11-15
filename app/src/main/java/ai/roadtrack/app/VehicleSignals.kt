@@ -63,14 +63,28 @@ class VehicleSignals(context: Context) {
             vehicle.getWiper().unregisterWiperState(windshield, wiper)
             vehicle.getLight().unregisterLowBeamLightState(lowBeam)
             vehicle.getSeat().unregisterSeatOccupancy(passengerSeat, seat)
+            if (restoreAutoColor) vehicle.getLight().setAmbientColorAutoByDriveModeEnabled(true, {}, fail)
             vehicle.release()
         }
     }
 
-    /** Ambient light follows the mood. Needs CONTROL_CAR_LIGHTS, which App Market must approve. */
+    private var autoColorChecked = false
+    private var restoreAutoColor = false
+
+    /** Sets the cabin ambient color (32-bit ARGB, CAR_LIGHTS). Called once per song change, never per beat. */
     fun setAmbient(argb: Int) {
-        runCatching { vehicle.getLight().setAmbientLightBrightnessColor(driverSeat, argb, { _, _ -> }, fail) }
-            .onFailure { Log.w(TAG, "ambient light unavailable", it) }
+        runCatching {
+            val light = vehicle.getLight()
+            // The car can recolor the ambient light by drive mode, which would overwrite song colors.
+            // Turn that off the first time we color the cabin and turn it back on in stop().
+            if (!autoColorChecked) {
+                autoColorChecked = true
+                light.getAmbientColorAutoByDriveModeEnabled({ on ->
+                    if (on == true) light.setAmbientColorAutoByDriveModeEnabled(false, { restoreAutoColor = true }, fail)
+                }, fail)
+            }
+            light.setAmbientLightBrightnessColor(driverSeat, argb, { _, _ -> }, fail)
+        }.onFailure { Log.w(TAG, "ambient light unavailable", it) }
     }
 
     private fun onGear(g: VehicleGear?) = _state.update { it.copy(parked = g == VehicleGear.GEAR_PARK) }

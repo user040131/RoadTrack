@@ -6,7 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.provider.MediaStore
 
-data class Song(val title: String, val artist: String)
+/** [colorArgb]: ambient light color picked by whoever pinned this song; null falls back to the mood color. */
+data class Song(val title: String, val artist: String, val colorArgb: Int? = null)
 
 /** Hands playback to whichever music app the user has (Melon, YouTube Music, ...). We never stream audio. */
 fun playSong(context: Context, song: Song): Boolean {

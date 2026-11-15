@@ -29,9 +29,9 @@ data class Course(val name: String, val minutes: Int, val pins: Int, val songs: 
 
 // shortcut: hardcoded demo courses, replace with the course/pin server once it exists
 private val demoCourses = listOf(
-    Course("한강 야경 코스", 52, 14, listOf(Song("밤양갱", "비비"), Song("Hype Boy", "NewJeans"))),
-    Course("북악 스카이웨이", 48, 9, listOf(Song("주저하는 연인들을 위해", "잔나비"))),
-    Course("인천대교 왕복", 55, 6, listOf(Song("Drive", "Miley Cyrus"))),
+    Course("한강 야경 코스", 52, 14, listOf(Song("밤양갱", "비비", 0xFFE8A33D.toInt()), Song("Hype Boy", "NewJeans", 0xFF6FB7FF.toInt()))),
+    Course("북악 스카이웨이", 48, 9, listOf(Song("주저하는 연인들을 위해", "잔나비", 0xFFE36F6F.toInt()), Song("Drive", "Miley Cyrus"))),
+    Course("인천대교 왕복", 55, 6, listOf(Song("Drive", "Miley Cyrus"), Song("밤양갱", "비비", 0xFFE8A33D.toInt()))),
 )
 
 class MainActivity : ComponentActivity() {
@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val car by signals.state.collectAsStateWithLifecycle()
             MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Bg)) {
-                RoadTrackApp(car, onMood = { signals.setAmbient(it.ambientArgb) })
+                RoadTrackApp(car, onLight = signals::setAmbient)
             }
         }
     }
@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun RoadTrackApp(car: CarSignals, onMood: (Mood) -> Unit) {
+fun RoadTrackApp(car: CarSignals, onLight: (Int) -> Unit) {
     var course by remember { mutableStateOf<Course?>(null) }
     var mood by remember { mutableStateOf(Mood.DEFAULT) }
     var dismissed by remember { mutableStateOf<Mood?>(null) }
@@ -66,13 +66,13 @@ fun RoadTrackApp(car: CarSignals, onMood: (Mood) -> Unit) {
         if (car.parked) {
             ParkedScreen(course, onPick = { course = it })
         } else {
-            DrivingScreen(course ?: demoCourses.first(), mood)
+            DrivingScreen(course ?: demoCourses.first(), mood, onLight)
         }
         if (!car.parked && suggested != Mood.DEFAULT && suggested != mood && suggested != dismissed) {
             SuggestionBar(
                 suggested,
                 Modifier.align(Alignment.BottomCenter),
-                onAccept = { mood = suggested; onMood(suggested) },
+                onAccept = { mood = suggested },
                 onDismiss = { dismissed = suggested },
             )
         }
@@ -106,14 +106,20 @@ private fun ParkedScreen(selected: Course?, onPick: (Course) -> Unit) {
 }
 
 @Composable
-private fun DrivingScreen(course: Course, mood: Mood) {
+private fun DrivingScreen(course: Course, mood: Mood, onLight: (Int) -> Unit) {
     val ctx = LocalContext.current
     var index by remember(course) { mutableIntStateOf(0) }
     val song = course.songs[index % course.songs.size]
+    val light = lightFor(song, mood)
+    // Recolor the cabin once whenever the song or the mood changes.
+    LaunchedEffect(light) { onLight(light) }
     // Glanceable: few items, big text, no animation while driving.
     Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
         Text("${course.name} · ${mood.label}", color = Dim, fontSize = 22.sp)
-        Text(song.title, color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+            Box(Modifier.size(40.dp).background(Color(light), RoundedCornerShape(10.dp)))
+            Text(song.title, color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Bold)
+        }
         Text(song.artist, color = Dim, fontSize = 28.sp)
         Text("다음 노래 핀까지 1.2km", color = Pin, fontSize = 28.sp, fontWeight = FontWeight.Bold)
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
