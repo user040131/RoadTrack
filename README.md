@@ -22,7 +22,7 @@
 - 주행 중에는 버튼 높이 96dp, 곡 제목 48sp 이상, 정보 3개와 버튼 2개만 보여줍니다.
 
 ## 시연 영상 (화면 시안)
-- [docs/RoadTrack_demo.mp4](docs/RoadTrack_demo.mp4) — 6개 핵심 화면 흐름 (42초)
+- [docs/RoadTrack_demo.mp4](docs/RoadTrack_demo.mp4) — 코스 선택, 주행, 상황 인식 제안, 노래 핀, 핀 공개까지 앱 사용 흐름 (45초, 화면 시안)
 
 ## 화면 시안
 | | |
